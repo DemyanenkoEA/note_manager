@@ -50,7 +50,7 @@ def check_issue_date(issue_date):
     elif difference_days.days == -1:
         print("Внимание! Дедлайн истек вчера!")
     #Если разница дней больше 1, то дедлайн истекает через n дней
-    elif  difference_days.days > 1:
+    elif difference_days.days > 1:
         # Производим делением с остатком количества дней на 10, чтобы решить какое слово вставлять в предложение
         result = difference_days.days % 10
         # Если количество дней равно 2,3,4... 22,23,24,
