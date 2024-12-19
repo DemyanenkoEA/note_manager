@@ -8,11 +8,11 @@ def print_current_date():
     # cur_date = "{}-{}-{}".format(now.day, now.month, now.year)
     print("Текущая дата:", cur_date)
 # Функция определения текущей даты, и возвращение форматированной строки с текущей датой
-def current_date():
+def get_current_date():
     # Вызываем функцию now(), получаем строку, и форматируем ее в необходимый вид
-    cur_date = datetime.now().strftime("%d-%m-%Y")
+    current_date = datetime.now().strftime("%d-%m-%Y")
     # Возвращаем текущую дату
-    return cur_date
+    return current_date
 # Функция запроса ввода даты дедлайна заметки, проверки правильности ввода даты
 def enter_issue_date():
     # Создаем вечный цикл на проверку ввода правильной даты
