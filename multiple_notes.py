@@ -106,6 +106,7 @@ def print_notes(notes_list):
         print('Дедлайн:', datetime.date(note_['issue_date']).strftime("%d-%m"))
         print('-' * 100)
 
+
 # Функция получения максимального значения note_id словаря заметки в списке заметок
 def get_max_note_id(notes_list):
     # Присваиваем переменной значение 0
@@ -114,8 +115,8 @@ def get_max_note_id(notes_list):
     # Возвращаем значение
     return max_value
 
-# Объявляем словарь для хранения информации о заметке
-note = dict()
+
+# Создаем список с заведомо указанными данными заметок
 notes = [
     {'username': 'Алексей', 'titles': ['Заголовок1'], 'content': 'Контент1', 'status': 'В процессе',
      'created_date': datetime(2024, 12, 10), 'issue_date': datetime(2024, 12, 10), 'note_id': 1},
@@ -125,16 +126,20 @@ notes = [
      'created_date': datetime(2024, 12, 10), 'issue_date': datetime(2024, 12, 10), 'note_id': 3},
     {'username': 'Петр', 'titles': ['Заголовок4', 'Заголовок41'], 'content': 'Контент4', 'status': 'В процессе',
      'created_date': datetime(2024, 12, 10), 'issue_date': datetime(2024, 12, 10), 'note_id': 4},
-    {'username': 'Алексей', 'titles': ['Список покупок'], 'content': 'Купить продукты на неделю', 'status': 'В процессе',
+    {'username': 'Алексей', 'titles': ['Список покупок'], 'content': 'Купить продукты на неделю',
+     'status': 'В процессе',
      'created_date': datetime(2024, 12, 10), 'issue_date': datetime(2024, 12, 10), 'note_id': 5},
     {'username': 'Мария', 'titles': ['Учеба'], 'content': 'Подготовиться к экзамену', 'status': 'В процессе',
      'created_date': datetime(2024, 12, 10), 'issue_date': datetime(2024, 12, 10), 'note_id': 6}
 ]
 
+# Создание пустого списка для отладки
+# notes = []
 
-#notes = []
 print('Добро пожаловать в менеджер заметок! Вы можете добавить новую заметку.')
 while True:
+    # Объявляем словарь для хранения информации о заметке
+    note = dict()
     # Находим максимальное значение note_id и увеличиваем на 1 для получения уникального ID
     note["note_id"] = get_max_note_id(notes) + 1
     # Объявляем переменные и запрашиваем информацию у пользователя
