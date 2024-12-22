@@ -6,19 +6,20 @@
 Позволяет завершить ввод специальной командой или пустым вводом.
 Выводит итоговый список добавленных заголовков.
 """
-note = {'titles': []}
+# Объявляем список для хранения заголовков заметки
+titles = list()
 while True:
     title = input("Введите заголовок (напишите слово 'стоп' или оставьте пустым для завершения ввода заголовков): ")
     if title in ['','стоп']:
         break
     else:
-        if title in note['titles']:
+        if title in titles:
             print("Такой заголовок уже существует в списке заголовков!")
             continue
-        note['titles'].append(title)
-if not note['titles']:
+        titles.append(title)
+if not titles:
     print("Список заголовков заметки пуст!")
 else:
     print('Заголовки заметки: ')
-    for value in note['titles']:
+    for value in titles:
         print(' - ', value)

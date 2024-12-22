@@ -1,8 +1,13 @@
+"""
+Удаление заметок
+
+Функциональность:
+Удаляет заметку по имени пользователя или заголовку.
+Выводит сообщение, если заметка не найдена.
+Обновляет список заметок.
+"""
 from datetime import datetime
 
-# Объявляем словарь с вариантами статусов заметок.
-# Каждому варианту статус указываем свою цифру.
-note_statuses = {1: 'Выполнено', 2: 'В процессе', 3: 'Отложено'}
 # Создаем список, с вложенными словарями хранящие данные о заметках
 notes = [
     {'username': 'Алексей', 'titles': ['Заголовок1'], 'content': 'Контент1', 'status': 2,
@@ -27,7 +32,7 @@ def print_notes(notes_list):
     if not notes_list:
         print("Список заметок пуст!")
         return
-    print("Список заметок:")
+    print("\nСписок заметок:")
     print('-' * 100)
     for note_ in notes_list:
         print('Имя пользователя:', note_['username'])
@@ -38,12 +43,15 @@ def print_notes(notes_list):
             for title in note_['titles']:
                 print('\t-', title)
         print('Описание:', note_['content'])
-
+        print('Статус:', note_['status'])
+        # ВЫВОДИМ ДАТЫ СОЗДАНИЯ И ДЕДЛАЙНА В СОКРАЩЕННОМ ВИДЕ СОГЛАСНО РАНЕМУ ТЗ
+        # print('Дата создания:',datetime.strptime(note_['created_date'], "%Y-%m-%d").strftime("%d-%m"))
+        print('Дата создания:', datetime.date(note_['created_date']).strftime("%d-%m"))
+        # print('Дедлайн:', datetime.strptime(note_['issue_date'], "%Y-%m-%d").strftime("%d-%m"))
+        print('Дедлайн:', datetime.date(note_['issue_date']).strftime("%d-%m"))
         print('-' * 100)
 
-
-# Функция вывода информации о заметке
-def print_note(note_, note_statuses_list):
+def print_note(note_):
     print('-' * 100)
     # print("Информация о заметке:")
     print('Имя пользователя:', note_['username'])
@@ -54,13 +62,14 @@ def print_note(note_, note_statuses_list):
         for title in note_['titles']:
             print('\t-', title)
     print('Описание:', note_['content'])
-    print('Статус:', note_statuses_list[note_['status']])
+    print('Статус:', note_['status'])
     # ВЫВОДИМ ДАТЫ СОЗДАНИЯ И ДЕДЛАЙНА В СОКРАЩЕННОМ ВИДЕ СОГЛАСНО РАНЕМУ ТЗ
     # print('Дата создания:',datetime.strptime(note_['created_date'], "%Y-%m-%d").strftime("%d-%m"))
     print('Дата создания:', datetime.date(note_['created_date']).strftime("%d-%m"))
     # print('Дедлайн:', datetime.strptime(note_['issue_date'], "%Y-%m-%d").strftime("%d-%m"))
     print('Дедлайн:', datetime.date(note_['issue_date']).strftime("%d-%m"))
     print('-' * 100)
+# Функция вывода информации о заметке
 
 
 # Функция удаления заметки из списка заметок по имени пользователя или заголовку
@@ -97,7 +106,7 @@ def delete_note(notes_list):
         if search_str in note['username'].lower() or search_str in [x.lower() for x in note['titles']]:
             founded = True
             print("Найдена следующая заметка:")
-            print_note(note, note_statuses)
+            print_note(note)
             # Цикл выполнения запроса на удаление
             while True:
                 # Запрашиваем строку, преобразовываем строку в нижний регистр

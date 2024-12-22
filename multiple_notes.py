@@ -1,3 +1,11 @@
+"""
+Работа с несколькими заметками
+
+Функциональность:
+Создаёт несколько заметок через ввод данных (имя, заголовок, описание, статус, дату создания, дедлайн).
+Хранит заметки в списке словарей.
+Выводит список всех заметок.
+"""
 from datetime import datetime
 
 
@@ -5,18 +13,23 @@ from datetime import datetime
 def enter_note_titles():
     # Объявляем список для хранения заголовков заметки
     titles = list()
-    # Запускаем цикл для ввода заголовков
     while True:
         title = input("Введите заголовок (напишите слово 'стоп' или оставьте пустым для завершения ввода заголовков): ")
         if title in ['', 'стоп']:
             break
         else:
+            if title in titles:
+                print("Такой заголовок уже существует в списке заголовков!")
+                continue
             titles.append(title)
     return titles
 
 
 # Функция ввода статуса заметки и возврат ее результатом функции
-def enter_note_status(note_statuses_list):
+def enter_note_status():
+    # Объявляем словарь с вариантами статусов заметок,
+    # каждому варианту статус указываем свою цифру
+    note_statuses = {1: 'Выполнено', 2: 'В процессе', 3: 'Отложено'}
     # Запуска цикл, с выводом текущего статуса заметки, и вопрос об изменения текущего статуса
     while True:
         # Выводим меню выбора статуса заметки
@@ -33,7 +46,7 @@ def enter_note_status(note_statuses_list):
             continue
         # Проверяем если выбранный вариант у нас в списке ключей словаря с вариантами статуса
         # Если есть вариант в ключах
-        if variant in note_statuses_list.keys():
+        if variant in note_statuses.keys():
             return variant
         # Если ключа нет либо неправильный ввод
         else:
@@ -70,7 +83,7 @@ def enter_issue_date():
 
 
 # Функция вывода содержимого заметок
-def print_notes(notes_list, note_statuses_list):
+def print_notes(notes_list):
     if not notes_list:
         print("Список заметок пуст!")
         return
@@ -85,7 +98,7 @@ def print_notes(notes_list, note_statuses_list):
             for title in note_['titles']:
                 print('\t-', title)
         print('Описание:', note_['content'])
-        print('Статус:', note_statuses_list[note_['status']])
+        print('Статус:', note_['status'])
         # ВЫВОДИМ ДАТЫ СОЗДАНИЯ И ДЕДЛАЙНА В СОКРАЩЕННОМ ВИДЕ СОГЛАСНО РАНЕМУ ТЗ
         # print('Дата создания:',datetime.strptime(note_['created_date'], "%Y-%m-%d").strftime("%d-%m"))
         print('Дата создания:', datetime.date(note_['created_date']).strftime("%d-%m"))
@@ -94,32 +107,27 @@ def print_notes(notes_list, note_statuses_list):
         print('-' * 100)
 
 # Функция получения максимального значения note_id словаря заметки в списке заметок
-def get_max_note_id(notes):
+def get_max_note_id(notes_list):
     # Присваиваем переменной значение 0
-    max_value = 0
     # С помощью функции max() ищем максимальное значение в сгенерированном списке из списка заметок
-    max_value = max([n['note_id'] for n in notes])
+    max_value = max([n['note_id'] for n in notes_list])
     # Возвращаем значение
     return max_value
 
-
-# Объявляем словарь с вариантами статусов заметок.
-# Каждому варианту статус указываем свою цифру.
-note_statuses = {1: 'Выполнено', 2: 'В процессе', 3: 'Отложено'}
 # Объявляем словарь для хранения информации о заметке
 note = dict()
 notes = [
-    {'username': 'Алексей', 'titles': ['Заголовок1'], 'content': 'Контент1', 'status': 2,
+    {'username': 'Алексей', 'titles': ['Заголовок1'], 'content': 'Контент1', 'status': 'В процессе',
      'created_date': datetime(2024, 12, 10), 'issue_date': datetime(2024, 12, 10), 'note_id': 1},
     {'username': 'Антон', 'titles': ['Заголовок2', 'Заголовок21', 'Заголовок22', 'Заголовок23'], 'content': 'Контент2',
      'status': 2, 'created_date': datetime(2024, 12, 10), 'issue_date': datetime(2024, 12, 10), 'note_id': 2},
-    {'username': 'Петр', 'titles': ['Заголовок3', 'Заголовок31'], 'content': 'Контент3', 'status': 2,
+    {'username': 'Петр', 'titles': ['Заголовок3', 'Заголовок31'], 'content': 'Контент3', 'status': 'В процессе',
      'created_date': datetime(2024, 12, 10), 'issue_date': datetime(2024, 12, 10), 'note_id': 3},
-    {'username': 'Петр', 'titles': ['Заголовок4', 'Заголовок41'], 'content': 'Контент4', 'status': 1,
+    {'username': 'Петр', 'titles': ['Заголовок4', 'Заголовок41'], 'content': 'Контент4', 'status': 'В процессе',
      'created_date': datetime(2024, 12, 10), 'issue_date': datetime(2024, 12, 10), 'note_id': 4},
-    {'username': 'Алексей', 'titles': ['Список покупок'], 'content': 'Купить продукты на неделю', 'status': 1,
+    {'username': 'Алексей', 'titles': ['Список покупок'], 'content': 'Купить продукты на неделю', 'status': 'В процессе',
      'created_date': datetime(2024, 12, 10), 'issue_date': datetime(2024, 12, 10), 'note_id': 5},
-    {'username': 'Мария', 'titles': ['Учеба'], 'content': 'Подготовиться к экзамену', 'status': 1,
+    {'username': 'Мария', 'titles': ['Учеба'], 'content': 'Подготовиться к экзамену', 'status': 'В процессе',
      'created_date': datetime(2024, 12, 10), 'issue_date': datetime(2024, 12, 10), 'note_id': 6}
 ]
 
@@ -127,7 +135,7 @@ notes = [
 #notes = []
 print('Добро пожаловать в менеджер заметок! Вы можете добавить новую заметку.')
 while True:
-    # Находим максимальное значение note_id и инкрементируем для получение уникального ID
+    # Находим максимальное значение note_id и увеличиваем на 1 для получения уникального ID
     note["note_id"] = get_max_note_id(notes) + 1
     # Объявляем переменные и запрашиваем информацию у пользователя
     # Имя пользователя
@@ -137,7 +145,7 @@ while True:
     # Описание заметки
     note["content"] = input("Введите описание заметки: ")
     # Присвоение статуса заметки, вызовом функции ввода статуса заметки
-    note['status'] = enter_note_status(note_statuses)
+    note['status'] = enter_note_status()
     # Присвоение даты создания заметки, вызовом функцией ввода даты создания
     note["created_date"] = enter_created_date()
     # Присвоение даты когда истекает заметка, вызовом функции ввода даты истекания заметки
@@ -150,7 +158,7 @@ while True:
         # Делаем проверку ввода пользователя
         # Если пользователь ввел "нет", то выводим список заметок
         if result in ['нет', 'стоп']:
-            print_notes(notes, note_statuses)
+            print_notes(notes)
         # Если пользователь ввел "да", то начинаем добавлять новую заметку
         elif result in ['да']:
             break
