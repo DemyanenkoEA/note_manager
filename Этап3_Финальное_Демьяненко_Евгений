@@ -1,0 +1,509 @@
+"""
+1. create_note_function.py: Функция создания заметки
+
+Функциональность:
+Функция create_note() запрашивает данные у пользователя для создания заметки.
+Формирует словарь с полями заметки, включая автоматическую генерацию текущей даты.
+Проверяет корректность формата даты дедлайна.
+"""
+from datetime import datetime
+from datetime import date
+# Импортирование собственных функции
+from utils_function import is_valid_date
+
+
+def create_note() -> dict:
+    # Объявляем словарь для хранения информации о заметке.
+    # Объявляем переменные и запрашиваем информацию у пользователя.
+    note = dict()
+    # Имя пользователя
+    note["username"] = input("Введите имя пользователя: ").strip()
+    # Ввод заметки
+    # Цикл проверки ввода заголовка
+    while True:
+        # Запрашиваем ввод заголовка пользователем, полученной строке обрезаем ненужные пробелы
+        note["title"] = input("Введите заголовок заметки (не должен быть пустым): ").strip()
+        # Проверяем пустая ли строка
+        if note["title"] == '':
+            # Если строка пуста, выводим сообщение об ошибке
+            input("Вы указали пустой заголовок заметки! Для продолжения нажмите Enter")
+            # Возвращаемся к началу цикла ввода
+            continue
+        # Если строка не пустая выходим из цикла
+        break
+    # Описание заметки
+    # Цикл проверки ввода описания заметки
+    while True:
+        # Запрашиваем ввод описания пользователем, полученной строке обрезаем ненужные пробелы
+        note["content"] = input("Введите описание заметки (не должно быть пустым): ").strip()
+        # Проверяем пустая ли строка
+        if not note["content"]:
+            # Если строка пуста, выводим сообщение об ошибке
+            input("Вы указали пустое описание заметки! Для продолжения нажмите Enter")
+            # Возвращаемся к началу цикла ввода
+            continue
+        # Если строка не пустая выходим из цикла
+        break
+    # Статус заметки
+    # Объявляем словарь с вариантами статусов заметок, каждому варианту статуса указываем свою цифру
+    note_statuses = {1: 'Новая', 2: 'В процессе', 3: 'Выполнена'}
+    # Цикл, выбора статуса заметки из словаря статусов
+    while True:
+        # Выводим меню выбора статуса заметки
+        print("Выберите статус заметки:")
+        # Цикл отображения вариантов статуса заметки
+        for k,v in note_statuses.items():
+            print(f"\t{k}. {v}")
+        # Просим произвести выбор варианта
+        # Введенные данные сразу преобразовываем в int
+        try:
+            # В случае если введено не число, то вызывается исключение ValueError
+            variant = int(input("Ваш вариант: ").strip())
+            # Элементу статуса словаря заметки присваиваем значение словаря с указанным вариантом ключа, иначе KeyError
+            note['status'] = note_statuses[variant]
+            # Прекращаем цикл
+            break
+        except ValueError:
+            input('Неправильный ввод! Для повтора нажмите Enter')
+            continue
+        except KeyError:
+            input('Вы указали неверный вариант статуса! Для повтора нажмите Enter')
+            continue
+
+    # Присвоение даты создания заметки, вызовом функцией ввода даты создания
+    note["created_date"] = datetime.today().strftime('%d-%m-%Y')
+    # Присвоение даты когда истекает заметка.
+    # Цикл проверки ввода правильной даты
+    while True:
+        # Дата истечения заметки (дедлайн) в формате "день-месяц-год", например "10-12-2024"
+        note['issue_date'] = input("Введите дату истечения заметки в формате 'день-месяц-год': ").strip()
+        if not is_valid_date(note['issue_date']):
+            print('Вы указали неверный формат даты!')
+            input("Для продолжения нажмите Enter")
+            continue
+        if datetime.strptime(note['issue_date'], '%d-%m-%Y').date() <= date.today():
+            print("Дата истечения срока заметки не может быть раньше даты создания заметки!")
+            input("Для продолжения нажмите Enter")
+            continue
+        break
+    return note
+
+
+# Проверка запуска локального файла
+if __name__ == "__main__":
+    note = create_note()
+    print("Заметка создана: ", note)
+
+
+"""
+2. update_note_function.py: Функция обновления заметки
+
+Функциональность:
+Функция update_note(note) принимает заметку (словарь) как аргумент.
+Позволяет пользователю выбрать поле для обновления.
+Проверяет корректность ввода и обновляет выбранное поле.
+"""
+
+from datetime import datetime
+from datetime import timedelta
+# Импортирование своих функции
+from utils_function import is_valid_date
+from utils_function import confirm
+
+
+#  Функция обновления данных заметки
+# Аргумент:
+#   note : Словарь с элементами данных заметки
+def update_note(note: {}):
+    # Список разрешенных полей для редактирования
+    allow_keys = ['username', 'title', 'content', 'status', 'issue_date']
+    # Цикл повторения изменений значений словаря заметки
+    while True:
+        # Вводим название элемента для редактирования. Обрезаем лишние пробелы, устанавливаем нижний регистр
+        key_name = input(
+            'Какие данные вы хотите обновить? (username, title, content, status, issue_date): ').strip().lower()
+        # Проверяем есть ли указанный элемент в списке разрешенных
+        if key_name in allow_keys:
+            # Запрашиваем ввод нового значения. Обрезаем лишние пробелы.
+            new_value = input(
+                f'Введите новое значение для {key_name} (пустая строка - оставить данные без изменений):').strip()
+            # Проверка пустой строки
+            if not new_value:
+                input("Вы оставили данные без изменений! Для продолжения нажмите Enter")
+            # Если ввели новые данные
+            else:
+                # Если элемент даты дедлайна
+                if key_name == 'issue_date':
+                    # Цикл проверки и ввода даты
+                    while True:
+                        # Проверяем на корректную дату или пустую строку после повторного ввода
+                        if is_valid_date(new_value) or not new_value:
+                            break
+                        else:
+                            print('Вы указали неверные данные для поля "issue_date"!', end=" ")
+                            print("Данные укажите в формате 'день-месяц-год'")
+                            new_value = input(
+                                f'Введите новое значение для {key_name} (пустая строка - оставить данные без изменений):').strip()
+                if new_value:
+                    print(f'Вы указали новые данные "{new_value}" для поля "{key_name}"')
+                    if confirm('Вы уверены, что хотите обновить данные?', [['да', 'д'], ['нет', 'н']]):
+                        note[key_name] = new_value
+        if confirm('Желаете еще изменить данные о заметки?', [['да', 'д'], ['нет', 'н']]):
+            continue
+        else:
+            return note
+
+
+if __name__ == "__main__":
+    # Создание списка словарей заметок для отладки
+    notes = [{'username': 'Алексей', 'title': 'Список покупок',
+              'content': 'Купить продукты на неделю', 'status': 'Новая',
+              'created_date': datetime.now().strftime('%d-%m-%Y'),
+              'issue_date': (datetime.now() + timedelta(days=7)).strftime('%d-%m-%Y')}]
+    print("Текущие данные заметки:\n", notes[0])
+
+    notes[0] = update_note(notes[0])
+
+    print('Заметка обновлена:\n', notes[0])
+
+
+
+"""
+3. display_notes_function.py: Функция отображения заметок
+
+Функциональность:
+Функция display_notes(notes) принимает список заметок.
+Выводит каждую заметку в удобном формате.
+Обрабатывает пустые списки заметок.
+"""
+
+from datetime import datetime
+from datetime import timedelta
+from colorama import init, deinit
+from colorama import Back, Style
+import os
+
+
+def display_notes(notes=None, clear=True):
+    # Инициализация colorama
+    init()
+    # Проверка на пустой список заметок
+    if not notes:
+        # Выводим сообщение об отсутствии заметок и выходим из функции
+        print('У вас нет сохранённых заметок.')
+        input('Для продолжения нажмите Enter')
+        return
+    # Очистка экрана консоли
+    if clear:
+        os.system('cls' if os.name == 'nt' else 'clear')
+    # Объявляем список с именами заголовков таблицы
+    table_columns = ["Имя пользователя", "Заголовок", "Содержание", "Статус", "Дата создания", "Дедлайн"]
+    # Список для хранения максимальной длинны колонок(столбцов)
+    max_columns = []
+    # Производим расчёт максимальной длинны колонок по заголовкам.
+    # Проходимся циклом по списку заголовков. Определяем длину элемента, и записываем ее в добавляемый элемент списка
+    for column in table_columns:
+        max_columns.append(len(column))
+    # Цикл прохождения по списку словарей заметок
+    for idx, note in enumerate(notes):
+        # Цикл прохождения по каждому значению словаря
+        for x, val in enumerate(note.values()):
+            # Проверяем максимальную длину значения элемента словаря и значение МАХ длины элемента словаря
+            max_columns[x] = max(max_columns[x], len(val))
+    # Подсчитываем количество символов.
+    # Сумму элементов списка длин заголовков + (количество элементов заголовка умножаем на 2 символа(пробел+|)
+    # + 4 символа вывод номера заметки
+    amount_symbols = sum(max_columns) + (len(max_columns) * 2) + 4
+    # Печатаем строку разделителей с необходимым количеством символов
+    print("-" * amount_symbols)
+    # Задаем стиль для вывода заголовков
+    print(Back.GREEN, end="")
+    print(" # |", end="")
+    for i, column in enumerate(table_columns):
+        print(f'{column:<{max_columns[i] + 1}}|', end="")
+    # Сбрасываем стили вывода
+    print(Style.RESET_ALL)
+    # Печатаем строку разделителей с необходимым количеством символов
+    print("-" * amount_symbols)
+    # В цикле выводим информацию о заметках
+    for i, note in enumerate(notes, start=1):
+        print(f'{i:<3}', end='|')
+        print(f'{note['username']:<{max_columns[0] + 1}}', end='|')
+        print(f'{note['title']:<{max_columns[1] + 1}}', end='|')
+        print(f'{note['content']:<{max_columns[2] + 1}}', end='|')
+        lower_status = note['status'].lower()
+        if lower_status == "новая":
+            print(Back.YELLOW + f'{lower_status:<{max_columns[3] + 1}}' + Style.RESET_ALL, end='|')
+        elif lower_status == "в процессе":
+            print(Back.GREEN + f'{lower_status:<{max_columns[3] + 1}}' + Style.RESET_ALL, end='|')
+        elif lower_status == "завершена" or lower_status == "выполнена":
+            print(Back.MAGENTA + f'{lower_status:<{max_columns[3] + 1}}' + Style.RESET_ALL, end='|')
+        else:
+            print(Back.RED + f'{lower_status:<{max_columns[3] + 1}}' + Style.RESET_ALL, end='|')
+        print(f'{note['created_date']:<{max_columns[4] + 1}}', end='|')
+        print(f'{note['issue_date']:<{max_columns[5] + 1}}|')
+        # Печатаем строку разделителей с необходимым количеством символов
+        print("-" * amount_symbols)
+    # Деинициализация colorama
+    deinit()
+
+
+if __name__ == '__main__':
+    while True:
+        # Очистка экрана консоли
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print("Тестирование программы:")
+        print("1. Проверка работы функции с пустым списком.")
+        print("2. Проверка работы функции с одной заметкой.")
+        print("3. Проверка работы функции с несколькими заметками.")
+        print("4. Выйти из программы")
+        try:
+            res = int(input("Сделайте выбор (1,2,3,4):"))
+            if res not in [1, 2, 3, 4]:
+                raise ValueError(1)
+        except ValueError:
+            input("Неправильный ввод! Для продолжения нажмите Enter")
+            continue
+        if res == 1:
+            notes = []
+            # Вызываем функцию отображение форматированного списка, передача списка аргументом
+            display_notes(notes)
+        elif res == 2:
+            # Создание списка словарей заметок для отладки
+            notes = [{'username': 'Алексей', 'title': 'Список покупок',
+                      'content': 'Купить продукты на неделю', 'status': 'Новая',
+                      'created_date': datetime.now().strftime('%d-%m-%Y'),
+                      'issue_date': (datetime.now() + timedelta(days=7)).strftime('%d-%m-%Y')}
+                     ]
+            # Вызываем функцию отображение форматированного списка, передача списка аргументом
+            display_notes(notes)
+            input("Для продолжения нажмите Enter")
+        elif res == 3:
+            # Создание списка словарей заметок для отладки
+            notes = [{'username': 'Алексей', 'title': 'Список покупок',
+                      'content': 'Купить продукты на неделю', 'status': 'Новая',
+                      'created_date': datetime.now().strftime('%d-%m-%Y'),
+                      'issue_date': (datetime.now() + timedelta(days=7)).strftime('%d-%m-%Y')},
+                     {'username': 'Алексей2', 'title': 'Список покупок тест',
+                      'content': 'Купить продукты на неделю2', 'status': 'В процессе',
+                      'created_date': datetime.now().strftime('%d-%m-%Y'),
+                      'issue_date': (datetime.now() + timedelta(days=7)).strftime('%d-%m-%Y')}
+                     ]
+            # Вызываем функцию отображение форматированного списка, передача списка аргументом
+            display_notes(notes)
+            input("Для продолжения нажмите Enter")
+        elif res == 4:
+            break
+
+
+"""
+4. search_notes_function.py: Функция поиска заметок
+
+Функциональность:
+Функция search_notes(notes, keyword=None, status=None) ищет заметки по ключевым словам или статусу.
+Возвращает список найденных заметок.
+Выводит сообщение, если ничего не найдено.
+"""
+from utils_function import validate_status
+from display_notes_function import display_notes
+
+
+def search_notes(notes, keyword=None, status=None):
+    # Проверка на пустой список заметок
+    if not notes:
+        # Выводим сообщение об отсутствии заметок и выходим из функции
+        print('У вас нет сохранённых заметок.')
+        input('Для продолжения нажмите Enter')
+        return
+    # Проверка отсутствия ключевого слова и статуса для поиска
+    if not keyword and not status:
+        input("Вы не указали ключевое слово и статус для поиска!")
+        # Выходим из функции и возвращаем пустой список
+        return list()
+    # Объявляем пустой список найденных заметок
+    found_notes = []
+    # Цикл поиска по заданным ключам
+    for idx, note in enumerate(notes):
+        # Проверка на поиск только по ключевому слову
+        if keyword and not status:
+            # Если по ключевому слову находим совпадение в title, content, username, то добавляем в список найденных
+            if (keyword in note['title'].lower() or keyword in note['content'].lower() or
+                    keyword in note['username'].lower()):
+                found_notes.append(note)
+        # Проверка на поиск только по статусу
+        elif not keyword and status:
+            # Если указанный статус совпадает со статусом заметки, то добавляем в список найденных
+            if status == note['status']:
+                found_notes.append(note)
+        # Проверка на поиск по ключевому слову и статусу
+        elif keyword and status:
+            # Если по ключевому слову находим совпадение в title, content, username,
+            # или указанный статус совпадает со статусом заметки, то добавляем в список найденных
+            if (keyword in note['title'].lower() or keyword in note['content'].lower() or
+                    keyword in note['username'].lower() or status == note['status']):
+                found_notes.append(note)
+
+    if not found_notes:
+        print("Заметки, соответствующие запросу, не найдены.")
+        input("Для продолжения нажмите Enter")
+    return found_notes
+
+
+if __name__ == '__main__':
+    keyword = input("Введите ключевое слово для поиска: ").strip().lower()
+    while True:
+        status = input("Введите статус для поиска (или оставьте пустым): ").strip().lower()
+        if status and not validate_status(status):
+            input(
+                "Вы вели неправильный статус для поиска.\nВарианты статуса: новая, в процессе, выполнена.\nДля продолжения нажмите Enter")
+            continue
+        break
+    notes = [
+        {'username': 'Алексей', 'title': 'Список покупок', 'content': 'Купить продукты на неделю', 'status': 'новая',
+         'created_date': '27-11-2024', 'issue_date': '30-11-2024'},
+        {'username': 'Мария', 'title': 'Учеба', 'content': 'Подготовиться к экзамену', 'status': 'в процессе',
+         'created_date': '25-11-2024', 'issue_date': '01-12-2024'},
+        {'username': 'Иван', 'title': 'План работы', 'content': 'Завершить проект', 'status': 'выполнена',
+         'created_date': '20-11-2024', 'issue_date': '26-11-2024'}
+    ]
+    found_notes = search_notes(notes, keyword, status)
+    display_notes(found_notes)
+
+
+"""
+5. menu.py: Меню действий
+
+Функциональность:
+Выводит интерактивное меню для выбора действий.
+Обрабатывает выбор пользователя и вызывает соответствующую функцию.
+Повторяет показ меню до тех пор, пока пользователь не выберет выход.
+Доступные действия:
+1: Создать новую заметку (create_note()).
+2: Показать все заметки (display_notes()).
+3: Обновить заметку (update_note()).
+4: Удалить заметку (delete_note() — опционально).
+5: Найти заметки (search_notes()).
+6: Выйти из программы.
+"""
+
+# Импорт модуля для работы с ОС
+import os
+from datetime import datetime
+from datetime import timedelta
+from display_notes_function import display_notes
+from create_note_function import create_note
+from search_notes_function import search_notes
+from utils_function import validate_status
+from delete_note import delete_note
+from update_note_function import update_note
+
+
+# Функция отображения пунктов меню
+def print_menu():
+	# Очистка экрана консоли
+	os.system('cls' if os.name == 'nt' else 'clear')
+	# Вывод производим построчно, ибо если использовать многострочный вариант пункты меню смещаются с центру экрана
+	print('Меню действий:')
+	print('1. Создать новую заметку.')
+	print('2. Показать все заметки.')
+	print('3. Обновить заметку.')
+	print('4. Удалить заметку. ')
+	print('5. Найти заметки.')
+	print('6. Выйти из программы.')
+
+
+# Проверка запуска локального файла
+if __name__ == "__main__":
+	# Создание списка словарей заметок для отладки
+	notes = [{'username': 'Алексей', 'title': 'Список покупок',
+			  'content': 'Купить продукты на неделю', 'status': 'новая',
+			  'created_date': datetime.today().strftime('%d-%m-%Y'),
+			  'issue_date': (datetime.today() + timedelta(days=7)).strftime('%d-%m-%Y')},
+			 {'username': 'Алексей', 'title': 'Заголовок1', 'content': 'Контент1', 'status': 'новая',
+			  'created_date': datetime.today().strftime('%d-%m-%Y'),
+			  'issue_date': (datetime.now() + timedelta(days=7)).strftime('%d-%m-%Y')},
+			 {'username': 'Антон', 'title': 'Заголовок2', 'content': 'Контент2',
+			  'status': 'новая', 'created_date': datetime.today().strftime('%d-%m-%Y'),
+			  'issue_date': (datetime.now() + timedelta(days=7)).strftime('%d-%m-%Y')},
+			 {'username': 'Петр', 'title': 'Заголовок3', 'content': 'Контент3', 'status': 'новая',
+			  'created_date': datetime.today().strftime('%d-%m-%Y'),
+			  'issue_date': (datetime.now() + timedelta(days=7)).strftime('%d-%m-%Y')},
+			 {'username': 'Петр', 'title': 'Заголовок4', 'content': 'Контент4', 'status': 'новая',
+			  'created_date': datetime.today().strftime('%d-%m-%Y'),
+			  'issue_date': (datetime.now() + timedelta(days=7)).strftime('%d-%m-%Y')},
+			 {'username': 'Алексей', 'title': 'Список покупок', 'content': 'Купить продукты на неделю',
+			  'status': 'новая',
+			  'created_date': datetime.today().strftime('%d-%m-%Y'),
+			  'issue_date': (datetime.now() + timedelta(days=7)).strftime('%d-%m-%Y')},
+			 {'username': 'Мария', 'title': 'Учеба', 'content': 'Подготовиться к экзамену', 'status': 'новая',
+			  'created_date': datetime.today().strftime('%d-%m-%Y'),
+			  'issue_date': (datetime.now() + timedelta(days=7)).strftime('%d-%m-%Y')}
+			 ]
+	# Создание пустого списка заметок
+	# notes = []
+	while True:
+		# Выводим меню
+		print_menu()
+		# Просим произвести ввод пункта меню, преобразовываем в целочисленную переменную
+		try:
+			# В случае если не число, вызываем ValueError
+			choice = int(input("Ваш выбор: "))
+			if choice == 1:
+				# Пользователь выбрал "Создать новую заметку"
+				# Вызываем функцию создания новой заметки и ее результат в виде словаря добавляем в список заметок
+				notes.append(create_note())
+				print("Новая заметка создана!\nДля продолжения нажмите Enter")
+			elif choice == 2:
+				# Пользователь выбрал "Показать все заметки"
+				display_notes(notes)
+				input("Для продолжения нажмите Enter")
+			elif choice == 3:
+				# Пользователь выбрал "Обновить заметку"
+				if not notes:
+					# Выводим сообщение об отсутствии заметок и выходим из функции
+					print('У вас нет сохранённых заметок.')
+					input('Для продолжения нажмите Enter')
+					continue
+				else:
+					display_notes(notes)
+					note_idx = 0
+					while True:
+						try:
+							note_idx = int(input("Введите номер заметки для обновления: ")) - 1
+							notes[note_idx] = update_note(notes[note_idx])
+							break
+						except ValueError:
+							input("Неверный ввод.\nДля продолжения Enter.")
+							continue
+						except IndexError:
+							input("Неверный номер заметки.\nДля продолжения нажмите Enter")
+							continue
+			elif choice == 4:
+				# Пользователь выбрал "Удалить заметку"
+				display_notes(notes)
+				delete_note(notes)
+				input("Для продолжения нажмите Enter")
+			elif choice == 5:
+				# Пользователь выбрал "Найти заметки"
+				keyword = input("Введите ключевое слово для поиска: ").strip().lower()
+				while True:
+					status = input("Введите статус для поиска (или оставьте пустым): ").strip().lower()
+					if status and not validate_status(status):
+						input(
+							"Неправильный ввод статус для поиска.\nВарианты статуса: новая, в процессе, выполнена.\nДля продолжения нажмите Enter")
+						continue
+					break
+				found_notes = search_notes(notes, keyword, status)
+				if found_notes:
+					display_notes(found_notes)
+					input("Для продолжения нажмите Enter")
+			elif choice == 6:
+				# Пользователь выбрал "Выйти из программы"
+				print("Программа завершена. Спасибо за использование!")
+				break
+			else:
+				pause = input("Неверный выбор. Пожалуйста, выберите действие из списка.\nДля продолжения Enter.")
+		except ValueError:
+			pause = input("Неверный ввод. Пожалуйста, выберите действие из списка.\nДля продолжения Enter.")
+			continue
+
