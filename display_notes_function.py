@@ -54,9 +54,9 @@ def display_notes(notes=None, clear=True):
     # В цикле выводим информацию о заметках
     for i, note in enumerate(notes, start=1):
         print(f'{i:<3}', end='|')
-        print(f'{note['username']:<{max_columns[0] + 1}}', end='|')
-        print(f'{note['title']:<{max_columns[1] + 1}}', end='|')
-        print(f'{note['content']:<{max_columns[2] + 1}}', end='|')
+        print(f'{note["username"]:<{max_columns[0] + 1}}', end='|')
+        print(f'{note["title"]:<{max_columns[1] + 1}}', end='|')
+        print(f'{note["content"]:<{max_columns[2] + 1}}', end='|')
         lower_status = note['status'].lower()
         if lower_status == "новая":
             print(Back.YELLOW + f'{lower_status:<{max_columns[3] + 1}}' + Style.RESET_ALL, end='|')
@@ -66,8 +66,8 @@ def display_notes(notes=None, clear=True):
             print(Back.MAGENTA + f'{lower_status:<{max_columns[3] + 1}}' + Style.RESET_ALL, end='|')
         else:
             print(Back.RED + f'{lower_status:<{max_columns[3] + 1}}' + Style.RESET_ALL, end='|')
-        print(f'{note['created_date']:<{max_columns[4] + 1}}', end='|')
-        print(f'{note['issue_date']:<{max_columns[5] + 1}}|')
+        print(f'{note["created_date"]:<{max_columns[4] + 1}}', end='|')
+        print(f'{note["issue_date"]:<{max_columns[5] + 1}}|')
         # Печатаем строку разделителей с необходимым количеством символов
         print("-" * amount_symbols)
     # Деинициализация colorama

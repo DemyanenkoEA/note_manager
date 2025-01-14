@@ -228,9 +228,9 @@ def display_notes(notes=None, clear=True):
     # В цикле выводим информацию о заметках
     for i, note in enumerate(notes, start=1):
         print(f'{i:<3}', end='|')
-        print(f'{note['username']:<{max_columns[0] + 1}}', end='|')
-        print(f'{note['title']:<{max_columns[1] + 1}}', end='|')
-        print(f'{note['content']:<{max_columns[2] + 1}}', end='|')
+        print(f'{note["username"]:<{max_columns[0] + 1}}', end='|')
+        print(f'{note["title"]:<{max_columns[1] + 1}}', end='|')
+        print(f'{note["content"]:<{max_columns[2] + 1}}', end='|')
         lower_status = note['status'].lower()
         if lower_status == "новая":
             print(Back.YELLOW + f'{lower_status:<{max_columns[3] + 1}}' + Style.RESET_ALL, end='|')
@@ -314,12 +314,12 @@ def search_notes(notes, keyword=None, status=None):
         # Выводим сообщение об отсутствии заметок и выходим из функции
         print('У вас нет сохранённых заметок.')
         input('Для продолжения нажмите Enter')
-        return
+        return []
     # Проверка отсутствия ключевого слова и статуса для поиска
     if not keyword and not status:
         input("Вы не указали ключевое слово и статус для поиска!")
         # Выходим из функции и возвращаем пустой список
-        return list()
+        return []
     # Объявляем пустой список найденных заметок
     found_notes = []
     # Цикл поиска по заданным ключам
